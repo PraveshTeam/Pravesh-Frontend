@@ -4,7 +4,7 @@ import { register } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
 import logoMark from '../../assets/logo.png'
 
-const ROLES = ['RESIDENT', 'GUARD', 'SOCIETY_ADMIN', 'SUPER_ADMIN']
+const ROLES = ['RESIDENT', 'GUARD', 'SOCIETY_ADMIN']
 
 export default function RegisterPage() {
   const { loginUser } = useAuth()
@@ -49,7 +49,7 @@ export default function RegisterPage() {
             <label className="form-label fw-semibold">Full Name</label>
             <input
               className="form-control"
-              placeholder="Rahul Sharma"
+              placeholder="Varad Patil"
               value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })}
               required
@@ -60,7 +60,7 @@ export default function RegisterPage() {
             <input
               type="email"
               className="form-control"
-              placeholder="rahul@example.com"
+              placeholder="varad@pravesh.com"
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
               required
