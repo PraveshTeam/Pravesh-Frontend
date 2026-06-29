@@ -8,15 +8,21 @@ import logoMark from '../../assets/logo.png'
 export default function LoginPage() {
   const { loginUser } = useAuth()
   const { showToast } = useToast()
-  const navigate = useNavigate()
+  const navigate      = useNavigate()
   const [form, setForm]       = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
+  const [loginOk, setLoginOk] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleLogin = async () => {
+    if (!form.email || !form.password) {
+      showToast('Please enter email and password.', 'warning')
+      return
+    }
+
     setLoading(true)
     try {
       const res = await login(form)
+      setLoginOk(true)          // ← allow browser save popup on success
       loginUser(res.data)
       showToast(`Welcome back, ${res.data.name}!`, 'success')
       const role = res.data.role
@@ -25,10 +31,19 @@ export default function LoginPage() {
       else if (role === 'RESIDENT')      navigate('/resident')
       else if (role === 'GUARD')         navigate('/guard')
     } catch (err) {
-      showToast(err.response?.data?.message || 'Login failed. Check credentials.', 'error')
+      setLoginOk(false)
+      showToast(
+        err.response?.data?.message || 'Login failed. Check credentials.',
+        'error'
+      )
     } finally {
       setLoading(false)
     }
+  }
+
+  // Support Enter key press
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleLogin()
   }
 
   return (
@@ -42,18 +57,43 @@ export default function LoginPage() {
           <p className="text-muted small">Society Visitor Management</p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        {/* Hidden real form — only exists for browser password manager on SUCCESS */}
+        {loginOk && (
+          <form
+            id="hidden-login-form"
+            style={{ display: 'none' }}
+            autoComplete="on"
+          >
+            <input
+              type="email"
+              name="username"
+              autoComplete="username"
+              defaultValue={form.email}
+            />
+            <input
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              defaultValue={form.password}
+            />
+          </form>
+        )}
+
+        {/* Visible inputs — NOT inside a form tag */}
+        <div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Email</label>
             <input
               type="email"
               className="form-control"
-              placeholder="you@pravesh.com"
+              placeholder="you@example.com"
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
-              required
+              onKeyDown={handleKeyDown}
+              autoComplete="username"
             />
           </div>
+
           <div className="mb-4">
             <label className="form-label fw-semibold">Password</label>
             <input
@@ -62,16 +102,23 @@ export default function LoginPage() {
               placeholder="••••••••"
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
-              required
+              onKeyDown={handleKeyDown}
+              autoComplete="current-password"
             />
           </div>
-          <button type="submit" className="btn btn-pravesh w-100 py-2" disabled={loading}>
+
+          <button
+            type="button"
+            className="btn btn-pravesh w-100 py-2"
+            onClick={handleLogin}
+            disabled={loading}
+          >
             {loading
               ? <span className="spinner-border spinner-border-sm me-2"></span>
               : <i className="bi bi-box-arrow-in-right me-2"></i>}
             {loading ? 'Logging in...' : 'Login'}
           </button>
-        </form>
+        </div>
 
         <p className="text-center text-muted small mt-3">
           Don't have an account?{' '}

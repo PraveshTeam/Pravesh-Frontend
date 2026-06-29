@@ -5,20 +5,24 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
-// Attach JWT token to every request automatically
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-// If 401 → logout and redirect to login
 api.interceptors.response.use(
   res => res,
   err => {
     if (err.response?.status === 401) {
-      localStorage.clear()
-      window.location.href = '/login'
+      const isLoginPage = window.location.pathname === '/login'
+      const hasToken    = localStorage.getItem('token')
+
+      // Only force logout if user WAS logged in before
+      if (!isLoginPage && hasToken) {
+        localStorage.clear()
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(err)
   }

@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import logoMark from '../../assets/logo.png'
 
-const ROLES = ['RESIDENT', 'GUARD', 'SOCIETY_ADMIN', 'SUPER_ADMIN']
+const ROLES = ['RESIDENT', 'GUARD', 'SOCIETY_ADMIN']
 
 export default function RegisterPage() {
   const { loginUser } = useAuth()
