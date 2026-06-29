@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { confirmEntry, getMyEntries } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 
 export default function GuardDashboard() {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [uuid, setUuid]       = useState('')
   const [result, setResult]   = useState(null)
   const [entries, setEntries] = useState([])
@@ -25,8 +27,13 @@ export default function GuardDashboard() {
       setResult(res.data)
       setUuid('')
       loadEntries()
+      if (res.data.result === 'GRANTED') {
+        showToast(`✅ Entry GRANTED for ${res.data.visitorName}`, 'success')
+      } else {
+        showToast(`❌ Entry DENIED — ${res.data.reason || res.data.message}`, 'error')
+      }
     } catch (err) {
-      setResult({ result: 'ERROR', message: err.response?.data?.message || 'Something went wrong.' })
+      showToast(err.response?.data?.message || 'Something went wrong.', 'error')
     } finally {
       setLoading(false)
     }
@@ -42,28 +49,17 @@ export default function GuardDashboard() {
         </div>
 
         <div className="row g-4">
-          {/* Confirm Entry */}
           <div className="col-lg-5">
             <div className="card p-4">
               <h6 className="fw-bold mb-3"><i className="bi bi-qr-code-scan me-2 text-primary"></i>Confirm Visitor Entry</h6>
-
               <form onSubmit={handleConfirm}>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Visitor Pass UUID</label>
-                  <input
-                    className="form-control form-control-lg"
-                    placeholder="Paste UUID here..."
-                    value={uuid}
-                    onChange={e => setUuid(e.target.value)}
-                    required
-                  />
+                  <input className="form-control form-control-lg" placeholder="Paste UUID here..."
+                    value={uuid} onChange={e => setUuid(e.target.value)} required />
                   <small className="text-muted">Visitor will share this UUID for entry</small>
                 </div>
-                <button
-                  type="submit"
-                  className="btn btn-pravesh w-100 py-2"
-                  disabled={loading}
-                >
+                <button type="submit" className="btn btn-pravesh w-100 py-2" disabled={loading}>
                   {loading
                     ? <span className="spinner-border spinner-border-sm me-2"></span>
                     : <i className="bi bi-check-circle me-2"></i>}
@@ -71,7 +67,6 @@ export default function GuardDashboard() {
                 </button>
               </form>
 
-              {/* Result */}
               {result && (
                 <div className={`alert mt-3 ${result.result === 'GRANTED' ? 'alert-success' : 'alert-danger'}`}>
                   <div className="d-flex align-items-center gap-2 mb-1">
@@ -88,7 +83,6 @@ export default function GuardDashboard() {
             </div>
           </div>
 
-          {/* Today's Entries */}
           <div className="col-lg-7">
             <div className="card p-3">
               <div className="d-flex justify-content-between align-items-center mb-3">
@@ -97,7 +91,6 @@ export default function GuardDashboard() {
                   <i className="bi bi-arrow-clockwise"></i>
                 </button>
               </div>
-
               {entries.length === 0
                 ? <p className="text-muted text-center py-4">No entries today</p>
                 : (

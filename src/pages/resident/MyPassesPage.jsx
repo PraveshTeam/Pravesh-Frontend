@@ -1,29 +1,30 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getPassHistory, revokePass } from '../../api/endpoints'
+import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 
 export default function MyPassesPage() {
-  const [passes, setPasses] = useState([])
+  const { showToast } = useToast()
+  const [passes, setPasses]   = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter]   = useState('ALL')
 
   const load = () => {
     setLoading(true)
-    getPassHistory()
-      .then(res => setPasses(res.data))
-      .finally(() => setLoading(false))
+    getPassHistory().then(res => setPasses(res.data)).finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
 
-  const handleRevoke = async (id) => {
-    if (!confirm('Revoke this pass?')) return
+  const handleRevoke = async (id, name) => {
+    if (!confirm(`Revoke pass for ${name}?`)) return
     try {
       await revokePass(id)
+      showToast(`Pass for ${name} revoked.`, 'warning')
       load()
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to revoke.')
+      showToast(err.response?.data?.message || 'Failed to revoke.', 'error')
     }
   }
 
@@ -45,16 +46,11 @@ export default function MyPassesPage() {
           </Link>
         </div>
 
-        {/* Filter tabs */}
         <div className="mb-3">
           {['ALL','ACTIVE','CONSUMED','REVOKED','EXPIRED'].map(f => (
-            <button
-              key={f}
+            <button key={f}
               className={`btn btn-sm me-2 mb-2 ${filter === f ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setFilter(f)}
-            >
-              {f}
-            </button>
+              onClick={() => setFilter(f)}>{f}</button>
           ))}
         </div>
 
@@ -74,14 +70,12 @@ export default function MyPassesPage() {
                         </div>
                         {statusBadge(p.status)}
                       </div>
-
                       <div className="small text-muted mb-2">
                         <div><i className="bi bi-tag me-1"></i>{p.passType}</div>
                         <div><i className="bi bi-arrow-repeat me-1"></i>{p.usesRemaining}/{p.usesAllowed} uses left</div>
                         <div><i className="bi bi-calendar me-1"></i>{new Date(p.validFrom).toLocaleString('en-IN')}</div>
                         <div><i className="bi bi-calendar-x me-1"></i>{new Date(p.validUntil).toLocaleString('en-IN')}</div>
                       </div>
-
                       <div className="mt-auto">
                         <div className="bg-light rounded p-2 mb-2">
                           <small className="text-break text-muted" style={{ fontSize: '0.7rem' }}>
@@ -89,10 +83,8 @@ export default function MyPassesPage() {
                           </small>
                         </div>
                         {p.status === 'ACTIVE' && (
-                          <button
-                            className="btn btn-sm btn-outline-danger w-100"
-                            onClick={() => handleRevoke(p.id)}
-                          >
+                          <button className="btn btn-sm btn-outline-danger w-100"
+                            onClick={() => handleRevoke(p.id, p.visitorName)}>
                             <i className="bi bi-x-circle me-1"></i>Revoke
                           </button>
                         )}

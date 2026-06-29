@@ -1,49 +1,45 @@
 import { useState, useEffect } from 'react'
 import { getGates, addGate, assignGuard } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 
 export default function AdminGatesPage() {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [gates, setGates]     = useState([])
   const [loading, setLoading] = useState(true)
   const [form, setForm]       = useState({ name: '', location: '' })
   const [assignForm, setAssignForm] = useState({ gateId: '', guardId: '' })
-  const [msg, setMsg]   = useState('')
-  const [error, setError] = useState('')
 
   const load = () => {
     setLoading(true)
-    getGates(user?.societyId)
-      .then(res => setGates(res.data))
-      .finally(() => setLoading(false))
+    getGates(user?.societyId).then(res => setGates(res.data)).finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
 
   const handleAddGate = async (e) => {
     e.preventDefault()
-    setMsg(''); setError('')
     try {
-      await addGate(user.societyId, form)
-      setMsg('Gate added successfully!')
+      const res = await addGate(user.societyId, form)
+      showToast(`Gate "${res.data.name}" added successfully!`, 'success')
       setForm({ name: '', location: '' })
       load()
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed.')
+      showToast(err.response?.data?.message || 'Failed.', 'error')
     }
   }
 
   const handleAssign = async (e) => {
     e.preventDefault()
-    setMsg(''); setError('')
     try {
       const res = await assignGuard(assignForm.gateId, { guardId: parseInt(assignForm.guardId) })
-      setMsg(res.data.message)
+      showToast(res.data.message, 'success')
       setAssignForm({ gateId: '', guardId: '' })
       load()
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed.')
+      showToast(err.response?.data?.message || 'Failed.', 'error')
     }
   }
 
@@ -55,11 +51,7 @@ export default function AdminGatesPage() {
           <h4 className="mb-0"><i className="bi bi-building-lock me-2"></i>Manage Gates</h4>
         </div>
 
-        {msg   && <div className="alert alert-success py-2 small">{msg}</div>}
-        {error && <div className="alert alert-danger  py-2 small">{error}</div>}
-
         <div className="row g-4 mb-4">
-          {/* Add Gate */}
           <div className="col-md-6">
             <div className="card p-3">
               <h6 className="fw-bold mb-3"><i className="bi bi-plus-circle me-2 text-warning"></i>Add New Gate</h6>
@@ -77,7 +69,6 @@ export default function AdminGatesPage() {
             </div>
           </div>
 
-          {/* Assign Guard */}
           <div className="col-md-6">
             <div className="card p-3">
               <h6 className="fw-bold mb-3"><i className="bi bi-person-badge me-2 text-success"></i>Assign Guard to Gate</h6>
@@ -104,7 +95,6 @@ export default function AdminGatesPage() {
           </div>
         </div>
 
-        {/* Gates Table */}
         {loading
           ? <div className="text-center py-5"><span className="spinner-border text-primary"></span></div>
           : (
@@ -119,10 +109,9 @@ export default function AdminGatesPage() {
                       <td className="text-muted">{g.id}</td>
                       <td className="fw-semibold">{g.name}</td>
                       <td>{g.location || '—'}</td>
-                      <td>
-                        {g.assignedGuardName
-                          ? <span className="badge bg-success">{g.assignedGuardName}</span>
-                          : <span className="badge bg-secondary">Unassigned</span>}
+                      <td>{g.assignedGuardName
+                        ? <span className="badge bg-success">{g.assignedGuardName}</span>
+                        : <span className="badge bg-secondary">Unassigned</span>}
                       </td>
                       <td>
                         <span className={`badge ${g.isActive ? 'bg-success' : 'bg-danger'}`}>

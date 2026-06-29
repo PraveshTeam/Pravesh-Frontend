@@ -2,29 +2,30 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import logoMark from '../../assets/logo.png'
 
 export default function LoginPage() {
   const { loginUser } = useAuth()
+  const { showToast } = useToast()
   const navigate = useNavigate()
-  const [form, setForm]   = useState({ email: '', password: '' })
-  const [error, setError] = useState('')
+  const [form, setForm]       = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
       const res = await login(form)
       loginUser(res.data)
+      showToast(`Welcome back, ${res.data.name}!`, 'success')
       const role = res.data.role
-      if (role === 'SUPER_ADMIN')   navigate('/super-admin')
+      if (role === 'SUPER_ADMIN')        navigate('/super-admin')
       else if (role === 'SOCIETY_ADMIN') navigate('/admin')
-      else if (role === 'RESIDENT') navigate('/resident')
-      else if (role === 'GUARD')    navigate('/guard')
+      else if (role === 'RESIDENT')      navigate('/resident')
+      else if (role === 'GUARD')         navigate('/guard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Check credentials.')
+      showToast(err.response?.data?.message || 'Login failed. Check credentials.', 'error')
     } finally {
       setLoading(false)
     }
@@ -41,17 +42,13 @@ export default function LoginPage() {
           <p className="text-muted small">Society Visitor Management</p>
         </div>
 
-        {error && (
-          <div className="alert alert-danger py-2 small">{error}</div>
-        )}
-
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label fw-semibold">Email</label>
             <input
               type="email"
               className="form-control"
-              placeholder="you@example.com"
+              placeholder="you@pravesh.com"
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
               required
@@ -68,11 +65,7 @@ export default function LoginPage() {
               required
             />
           </div>
-          <button
-            type="submit"
-            className="btn btn-pravesh w-100 py-2"
-            disabled={loading}
-          >
+          <button type="submit" className="btn btn-pravesh w-100 py-2" disabled={loading}>
             {loading
               ? <span className="spinner-border spinner-border-sm me-2"></span>
               : <i className="bi bi-box-arrow-in-right me-2"></i>}

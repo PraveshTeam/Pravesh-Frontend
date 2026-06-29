@@ -1,49 +1,45 @@
 import { useState, useEffect } from 'react'
 import { getFlats, addFlat, assignResident } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 
 export default function AdminFlatsPage() {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [flats, setFlats]     = useState([])
   const [loading, setLoading] = useState(true)
   const [form, setForm]       = useState({ flatNumber: '', tower: '', floor: '' })
   const [assignForm, setAssignForm] = useState({ flatId: '', residentId: '' })
-  const [msg, setMsg]   = useState('')
-  const [error, setError] = useState('')
 
   const load = () => {
     setLoading(true)
-    getFlats(user?.societyId)
-      .then(res => setFlats(res.data))
-      .finally(() => setLoading(false))
+    getFlats(user?.societyId).then(res => setFlats(res.data)).finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
 
   const handleAddFlat = async (e) => {
     e.preventDefault()
-    setMsg(''); setError('')
     try {
-      await addFlat(user.societyId, { ...form, floor: parseInt(form.floor) || null })
-      setMsg('Flat added successfully!')
+      const res = await addFlat(user.societyId, { ...form, floor: parseInt(form.floor) || null })
+      showToast(`Flat ${res.data.flatNumber} added successfully!`, 'success')
       setForm({ flatNumber: '', tower: '', floor: '' })
       load()
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add flat.')
+      showToast(err.response?.data?.message || 'Failed to add flat.', 'error')
     }
   }
 
   const handleAssign = async (e) => {
     e.preventDefault()
-    setMsg(''); setError('')
     try {
       const res = await assignResident(assignForm.flatId, { residentId: parseInt(assignForm.residentId) })
-      setMsg(res.data.message)
+      showToast(res.data.message, 'success')
       setAssignForm({ flatId: '', residentId: '' })
       load()
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to assign.')
+      showToast(err.response?.data?.message || 'Failed to assign.', 'error')
     }
   }
 
@@ -55,11 +51,7 @@ export default function AdminFlatsPage() {
           <h4 className="mb-0"><i className="bi bi-door-open me-2"></i>Manage Flats</h4>
         </div>
 
-        {msg   && <div className="alert alert-success py-2 small">{msg}</div>}
-        {error && <div className="alert alert-danger  py-2 small">{error}</div>}
-
         <div className="row g-4 mb-4">
-          {/* Add Flat */}
           <div className="col-md-6">
             <div className="card p-3">
               <h6 className="fw-bold mb-3"><i className="bi bi-plus-circle me-2 text-success"></i>Add New Flat</h6>
@@ -81,7 +73,6 @@ export default function AdminFlatsPage() {
             </div>
           </div>
 
-          {/* Assign Resident */}
           <div className="col-md-6">
             <div className="card p-3">
               <h6 className="fw-bold mb-3"><i className="bi bi-person-check me-2 text-primary"></i>Assign Resident to Flat</h6>
@@ -108,7 +99,6 @@ export default function AdminFlatsPage() {
           </div>
         </div>
 
-        {/* Flats Table */}
         {loading
           ? <div className="text-center py-5"><span className="spinner-border text-primary"></span></div>
           : (
@@ -124,10 +114,9 @@ export default function AdminFlatsPage() {
                       <td className="fw-semibold">{f.flatNumber}</td>
                       <td>{f.tower || '—'}</td>
                       <td>{f.floor ?? '—'}</td>
-                      <td>
-                        {f.residentName
-                          ? <span className="badge bg-success">{f.residentName}</span>
-                          : <span className="badge bg-secondary">Vacant</span>}
+                      <td>{f.residentName
+                        ? <span className="badge bg-success">{f.residentName}</span>
+                        : <span className="badge bg-secondary">Vacant</span>}
                       </td>
                     </tr>
                   ))}

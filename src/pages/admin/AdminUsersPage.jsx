@@ -1,43 +1,42 @@
 import { useState, useEffect } from 'react'
 import { getAllUsers, toggleUserStatus, assignUserToSociety } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 
 export default function AdminUsersPage() {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [users, setUsers]     = useState([])
   const [loading, setLoading] = useState(true)
   const [assignId, setAssignId] = useState('')
-  const [assignMsg, setAssignMsg] = useState('')
 
   const load = () => {
     setLoading(true)
-    getAllUsers(user?.societyId)
-      .then(res => setUsers(res.data))
-      .finally(() => setLoading(false))
+    getAllUsers(user?.societyId).then(res => setUsers(res.data)).finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
 
-  const handleToggle = async (id, current) => {
+  const handleToggle = async (id, name, current) => {
     try {
       await toggleUserStatus(id, !current)
+      showToast(`${name} has been ${!current ? 'activated' : 'deactivated'}.`, !current ? 'success' : 'warning')
       load()
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed.')
+      showToast(err.response?.data?.message || 'Failed.', 'error')
     }
   }
 
   const handleAssign = async (e) => {
     e.preventDefault()
-    setAssignMsg('')
     try {
       const res = await assignUserToSociety(user.societyId, { userId: parseInt(assignId) })
-      setAssignMsg(res.data.message)
+      showToast(res.data.message, 'success')
       setAssignId('')
       load()
     } catch (err) {
-      setAssignMsg(err.response?.data?.message || 'Failed.')
+      showToast(err.response?.data?.message || 'Failed.', 'error')
     }
   }
 
@@ -54,21 +53,13 @@ export default function AdminUsersPage() {
           <h4 className="mb-0"><i className="bi bi-people me-2"></i>Manage Users</h4>
         </div>
 
-        {/* Assign user to society */}
         <div className="card p-3 mb-4">
           <h6 className="fw-bold mb-3"><i className="bi bi-person-plus me-2 text-primary"></i>Add User to Society</h6>
           <form onSubmit={handleAssign} className="d-flex gap-2">
-            <input
-              type="number"
-              className="form-control"
-              placeholder="Enter User ID"
-              value={assignId}
-              onChange={e => setAssignId(e.target.value)}
-              required
-            />
+            <input type="number" className="form-control" placeholder="Enter User ID"
+              value={assignId} onChange={e => setAssignId(e.target.value)} required />
             <button type="submit" className="btn btn-pravesh px-4">Assign</button>
           </form>
-          {assignMsg && <p className="small mt-2 mb-0 text-success">{assignMsg}</p>}
         </div>
 
         {loading
@@ -77,10 +68,7 @@ export default function AdminUsersPage() {
             <div className="card p-0 overflow-hidden">
               <table className="table table-hover mb-0">
                 <thead className="table-dark">
-                  <tr>
-                    <th>ID</th><th>Name</th><th>Email</th><th>Role</th>
-                    <th>Flat</th><th>Status</th><th>Action</th>
-                  </tr>
+                  <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Flat</th><th>Status</th><th>Action</th></tr>
                 </thead>
                 <tbody>
                   {users.map(u => (
@@ -98,8 +86,7 @@ export default function AdminUsersPage() {
                       <td>
                         <button
                           className={`btn btn-sm ${u.isActive ? 'btn-outline-danger' : 'btn-outline-success'}`}
-                          onClick={() => handleToggle(u.id, u.isActive)}
-                        >
+                          onClick={() => handleToggle(u.id, u.name, u.isActive)}>
                           {u.isActive ? 'Deactivate' : 'Activate'}
                         </button>
                       </td>

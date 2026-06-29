@@ -1,39 +1,35 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { createSociety, assignSocietyAdmin } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 
 export default function SuperAdminDashboard() {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [societyForm, setSocietyForm] = useState({ name: '', address: '', city: '' })
   const [adminForm, setAdminForm]     = useState({ societyId: '', userId: '' })
-  const [societyMsg, setSocietyMsg]   = useState('')
-  const [adminMsg, setAdminMsg]       = useState('')
-  const [societyErr, setSocietyErr]   = useState('')
-  const [adminErr, setAdminErr]       = useState('')
 
   const handleCreateSociety = async (e) => {
     e.preventDefault()
-    setSocietyMsg(''); setSocietyErr('')
     try {
       const res = await createSociety(societyForm)
-      setSocietyMsg(`Society "${res.data.name}" created with ID: ${res.data.id}`)
+      showToast(`Society "${res.data.name}" created! ID: ${res.data.id}`, 'success')
       setSocietyForm({ name: '', address: '', city: '' })
     } catch (err) {
-      setSocietyErr(err.response?.data?.message || 'Failed.')
+      showToast(err.response?.data?.message || 'Failed to create society.', 'error')
     }
   }
 
   const handleAssignAdmin = async (e) => {
     e.preventDefault()
-    setAdminMsg(''); setAdminErr('')
     try {
       const res = await assignSocietyAdmin(adminForm.societyId, { userId: parseInt(adminForm.userId) })
-      setAdminMsg(res.data.message)
+      showToast(res.data.message, 'success')
       setAdminForm({ societyId: '', userId: '' })
     } catch (err) {
-      setAdminErr(err.response?.data?.message || 'Failed.')
+      showToast(err.response?.data?.message || 'Failed to assign admin.', 'error')
     }
   }
 
@@ -47,14 +43,9 @@ export default function SuperAdminDashboard() {
         </div>
 
         <div className="row g-4">
-          {/* Create Society */}
           <div className="col-md-6">
             <div className="card p-4">
               <h6 className="fw-bold mb-3"><i className="bi bi-building-add me-2 text-primary"></i>Create New Society</h6>
-
-              {societyMsg && <div className="alert alert-success py-2 small">{societyMsg}</div>}
-              {societyErr && <div className="alert alert-danger  py-2 small">{societyErr}</div>}
-
               <form onSubmit={handleCreateSociety}>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Society Name *</label>
@@ -81,14 +72,9 @@ export default function SuperAdminDashboard() {
             </div>
           </div>
 
-          {/* Assign Society Admin */}
           <div className="col-md-6">
             <div className="card p-4">
               <h6 className="fw-bold mb-3"><i className="bi bi-person-gear me-2 text-success"></i>Assign Society Admin</h6>
-
-              {adminMsg && <div className="alert alert-success py-2 small">{adminMsg}</div>}
-              {adminErr && <div className="alert alert-danger  py-2 small">{adminErr}</div>}
-
               <form onSubmit={handleAssignAdmin}>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Society ID *</label>
@@ -106,7 +92,6 @@ export default function SuperAdminDashboard() {
                   <i className="bi bi-person-check me-2"></i>Assign Admin
                 </button>
               </form>
-
               <hr />
               <p className="text-muted small mb-2">Flow:</p>
               <ol className="small text-muted">
