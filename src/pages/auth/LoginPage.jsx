@@ -57,28 +57,6 @@ export default function LoginPage() {
           <p className="text-muted small">Society Visitor Management</p>
         </div>
 
-        {/* Hidden real form — only exists for browser password manager on SUCCESS */}
-        {loginOk && (
-          <form
-            id="hidden-login-form"
-            style={{ display: 'none' }}
-            autoComplete="on"
-          >
-            <input
-              type="email"
-              name="username"
-              autoComplete="username"
-              defaultValue={form.email}
-            />
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              defaultValue={form.password}
-            />
-          </form>
-        )}
-
         {/* Visible inputs — NOT inside a form tag */}
         <div>
           <div className="mb-3">
