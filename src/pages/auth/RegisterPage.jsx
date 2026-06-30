@@ -27,10 +27,17 @@ export default function RegisterPage() {
       else if (role === 'RESIDENT')      navigate('/resident')
       else if (role === 'GUARD')         navigate('/guard')
     } catch (err) {
-      showToast(err.response?.data?.message || 'Registration failed.', 'error')
-    } finally {
-      setLoading(false)
-    }
+  const data = err.response?.data;
+
+  const errorMessage =
+    data?.errors
+      ? Object.values(data.errors).flat()[0]
+      : data?.message || 'Registration failed.';
+
+  showToast(errorMessage, 'error');
+} finally {
+  setLoading(false);
+}
   }
 
   return (
