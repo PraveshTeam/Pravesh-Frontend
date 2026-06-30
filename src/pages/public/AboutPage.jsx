@@ -7,6 +7,7 @@ import snehaImg from '../../assets/Sneha.png';
 import ritikImg from '../../assets/Ritik.jpg';
 import saloneeImg from '../../assets/Salonee.png';
 import shreyaImg from '../../assets/Shreya.png';
+import vyankiiImg from '../../assets/vyankii.jpeg';
 
 /* ── Default Avatar SVG (initials) ── */
 const DefaultAvatar = ({ name }) => {
@@ -89,13 +90,13 @@ const teamMembers = [
   },
   {
     id: 6,
-    name: 'Vyankatesh Wakde',
-    role: 'Frontend Developer',
-    photo: null,
-    bio: 'Developed modern, responsive interfaces using React 18 and Bootstrap. Integrated frontend components with backend APIs and contributed to delivering a smooth user experience across all user roles.',
-    email: '',
-    linkedin: '',
-    github: '',
+    name: 'Vyankatesh Deepak Wakde',
+    role: 'Backend Developer',
+    photo: vyankiiImg,
+    bio: 'Contributed to the end-to-end backend development of a web application using .NET 8, focusing on API development, database design,          user authentication, and system security.',
+    email: 'vyankateshwakde23@gmail.com',
+    linkedin: 'https://www.linkedin.com/in/vyankatesh-wakde-6b5a3334b',
+    github: 'https://github.com/vyankateshwakdecmfeb26',
   },
 ];
 
