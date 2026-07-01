@@ -93,12 +93,6 @@ export default function SuperAdminDashboard() {
                 </button>
               </form>
               <hr />
-              <p className="text-muted small mb-2">Flow:</p>
-              <ol className="small text-muted">
-                <li>Create a society above</li>
-                <li>Register a SOCIETY_ADMIN via <Link to="/register">Register</Link></li>
-                <li>Assign that user as admin here</li>
-              </ol>
             </div>
           </div>
         </div>
