@@ -117,7 +117,7 @@ export default function AboutPage() {
                 reliable, and fully digital pass-and-verification system.</i>
             </p>
             <p className="about-para">
-              <i>Built as a CDAC final year project, Pravesh brings residents, guards, and society
+              <i>Pravesh brings residents, guards, and society
                 administrators onto one connected platform — from QR pass creation to real-time entry logs.</i>
             </p>
           </div>

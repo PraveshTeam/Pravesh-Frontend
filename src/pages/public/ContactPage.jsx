@@ -26,11 +26,11 @@ export default function ContactPage() {
 
               <div className="contact-item mb-3">
                 <h5><i className="bi bi-geo-alt-fill me-2"></i>Address</h5>
-                <p className="para">CDAC Mumbai, Kharghar</p>
+                <p className="para">Mumbai, Kharghar</p>
               </div>
               <div className="contact-item mb-3">
                 <h5><i className="bi bi-telephone-fill me-2"></i>Phone</h5>
-                <p className="para">+91 (11) 222-3344</p>
+                <p className="para">+91 9766404729</p>
               </div>
               <div className="contact-item mb-3">
                 <h5><i className="bi bi-envelope-fill me-2"></i>Email</h5>
@@ -38,7 +38,7 @@ export default function ContactPage() {
                   href="https://mail.google.com/mail/?view=cm&fs=1&to=info@pravesh.in"
                   target="_blank" rel="noreferrer" className="para contact-link"
                 >
-                  info@pravesh.in
+                  pravesh.notify@gmail.com
                 </a>
               </div>
               <div className="contact-item">

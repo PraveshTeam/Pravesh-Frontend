@@ -68,7 +68,7 @@ export default function RegisterPage() {
           </div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Password</label>
-            <input type="password" className="form-control" placeholder="Min 6 characters"
+            <input type="password" className="form-control" placeholder="Min 8 characters"
               value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
           </div>
           <div className="mb-4">
