@@ -2,22 +2,15 @@ import { useEffect } from 'react'
 
 export default function Toast({ toasts, removeToast }) {
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: '1rem',
-        right: '1rem',
-        zIndex: 9999,
-        minWidth: 300
-      }}
-    >
+    <div className="pravesh-toast-container">
       {toasts.map(t => (
         <div
           key={t.id}
-          className={`toast show align-items-center text-white border-0 mb-2
-            ${t.type === 'success' ? 'bg-success' :
-              t.type === 'error'   ? 'bg-danger'  :
-              t.type === 'warning' ? 'bg-warning text-dark' : 'bg-primary'}`}
+          className={`toast show align-items-center border-0 mb-2 pravesh-toast
+            ${t.type === 'success' ? 'bg-success text-white' :
+              t.type === 'error'   ? 'bg-danger text-white'  :
+              t.type === 'warning' ? 'bg-warning text-dark'  :
+              'bg-primary text-white'}`}
           role="alert"
         >
           <div className="d-flex">
@@ -28,11 +21,11 @@ export default function Toast({ toasts, removeToast }) {
                 t.type === 'warning' ? 'bi-exclamation-triangle-fill' :
                 'bi-info-circle-fill'
               } fs-5`}></i>
-              {t.message}
+              <span>{t.message}</span>
             </div>
             <button
               type="button"
-              className="btn-close btn-close-white me-2 m-auto"
+              className={`btn-close ${t.type === 'warning' ? '' : 'btn-close-white'} me-2 m-auto`}
               onClick={() => removeToast(t.id)}
             />
           </div>
