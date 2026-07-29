@@ -3,46 +3,60 @@ import { getMe, updateMe } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
+import LoadingSpinner from '../../components/common/LoadingSpinner'
 
 export default function ProfilePage() {
   const { user, loginUser } = useAuth()
   const { showToast } = useToast()
   const [profile, setProfile] = useState(null)
-  const [form, setForm]       = useState({ name: '', phone: '' })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState({ name: '', phone: '' })
 
   useEffect(() => {
-    getMe().then(res => {
-      setProfile(res.data)
-      setForm({ name: res.data.name, phone: res.data.phone || '' })
-    }).catch(() => showToast('Failed to load profile.', 'error'))
+    getMe()
+      .then(res => {
+        const p = res.data.data
+        setProfile(p)
+        setForm({ name: p.name, phone: p.phone || '' })
+      })
+      .catch(() => showToast('Failed to load profile.', 'error'))
+      .finally(() => setLoading(false))
   }, [])
 
   const handleUpdate = async (e) => {
     e.preventDefault()
+    setSaving(true)
     try {
       await updateMe(form)
       showToast('Profile updated successfully!', 'success')
-      const updated = { ...user, name: form.name }
-      loginUser({ ...updated, token: localStorage.getItem('token') })
-    } catch {
-      showToast('Failed to update profile.', 'error')
+      loginUser({ ...user, name: form.name, token: localStorage.getItem('token') })
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to update profile.', 'error')
+    } finally {
+      setSaving(false)
     }
   }
 
   return (
     <>
       <Navbar />
-      <div className="container py-4" style={{ maxWidth: 500 }}>
+      <div className="container py-4" style={{ maxWidth: 520 }}>
         <div className="page-header">
           <h4 className="mb-0"><i className="bi bi-person-circle me-2"></i>My Profile</h4>
         </div>
 
-        {profile && (
+        {loading ? <LoadingSpinner text="Loading your profile..." /> : profile && (
           <div className="card p-4">
             <div className="mb-3 text-center">
               <span className="badge bg-primary fs-6">{profile.role}</span>
-              {profile.flatId    && <p className="text-muted small mt-1">Flat ID: {profile.flatId}</p>}
-              {profile.societyId && <p className="text-muted small">Society ID: {profile.societyId}</p>}
+              <div className="mt-2 d-flex flex-wrap justify-content-center gap-3">
+                {profile.flatId && <span className="text-muted small">Flat ID: {profile.flatId}</span>}
+                {profile.gateId && <span className="text-muted small">Gate ID: {profile.gateId}</span>}
+                {profile.societyId && <span className="text-muted small">Society ID: {profile.societyId}</span>}
+                {profile.verificationStatus &&
+                  <span className="text-muted small">Status: {profile.verificationStatus}</span>}
+              </div>
             </div>
 
             <form onSubmit={handleUpdate}>
@@ -54,14 +68,18 @@ export default function ProfilePage() {
               <div className="mb-3">
                 <label className="form-label fw-semibold">Email</label>
                 <input className="form-control" value={profile.email} disabled />
+                <div className="form-text">Email cannot be changed.</div>
               </div>
               <div className="mb-4">
                 <label className="form-label fw-semibold">Phone</label>
                 <input className="form-control" value={form.phone}
                   onChange={e => setForm({ ...form, phone: e.target.value })} />
               </div>
-              <button type="submit" className="btn btn-pravesh w-100">
-                <i className="bi bi-save me-2"></i>Save Changes
+              <button type="submit" className="btn btn-pravesh w-100" disabled={saving}>
+                {saving
+                  ? <span className="spinner-border spinner-border-sm me-2"></span>
+                  : <i className="bi bi-save me-2"></i>}
+                {saving ? 'Saving...' : 'Save Changes'}
               </button>
             </form>
           </div>

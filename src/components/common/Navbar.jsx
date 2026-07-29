@@ -1,12 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import fullLogo from '../../assets/full_logo.png'
+import { getMyNotifications } from '../../api/endpoints'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!user) return
+    let active = true
+    const poll = () => {
+      getMyNotifications()
+        .then(res => {
+          if (!active) return
+          const list = res.data.data || []
+          setUnreadCount(list.filter(n => !n.isRead).length)
+        })
+        .catch(() => {})
+    }
+    poll()
+    const t = setInterval(poll, 30000)
+    return () => { active = false; clearInterval(t) }
+  }, [user])
 
   const handleLogout = () => {
     setMenuOpen(false)
@@ -62,6 +81,10 @@ export default function Navbar() {
               {user.name}
               <span className="badge bg-warning text-dark ms-2">{user.role}</span>
             </span>
+            <Link to="/notifications" className="navbar-bell">
+              <i className="bi bi-bell"></i>
+              {unreadCount > 0 && <span className="navbar-bell-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
+            </Link>
             <Link to="/profile" className="btn btn-outline-light btn-sm">
               <i className="bi bi-gear"></i>
             </Link>
@@ -105,6 +128,14 @@ export default function Navbar() {
                 {user.name}
                 <span className="badge bg-warning text-dark ms-2">{user.role}</span>
               </div>
+              <Link
+                to="/notifications"
+                className="btn btn-outline-light btn-sm w-100"
+                onClick={() => setMenuOpen(false)}
+              >
+                <i className="bi bi-bell me-1"></i>Notifications
+                {unreadCount > 0 && <span className="badge bg-warning text-dark ms-2">{unreadCount}</span>}
+              </Link>
               <Link
                 to="/profile"
                 className="btn btn-outline-light btn-sm w-100"

@@ -6,17 +6,32 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load user from localStorage on app start
   useEffect(() => {
     const stored = localStorage.getItem('user')
-    if (stored) setUser(JSON.parse(stored))
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored))
+      } catch {
+        localStorage.removeItem('user')
+      }
+    }
     setIsLoading(false)
   }, [])
 
-  const loginUser = (userData) => {
-    localStorage.setItem('token', userData.token)
-    localStorage.setItem('user',  JSON.stringify(userData))
-    setUser(userData)
+  // auth: { token, userId, name, email, role, verificationStatus }
+  const loginUser = (auth) => {
+    localStorage.setItem('token', auth.token)
+    localStorage.setItem('user', JSON.stringify(auth))
+    setUser(auth)
+  }
+
+  const updateVerificationStatus = (status) => {
+    setUser(prev => {
+      if (!prev) return prev
+      const updated = { ...prev, verificationStatus: status }
+      localStorage.setItem('user', JSON.stringify(updated))
+      return updated
+    })
   }
 
   const logout = () => {
@@ -25,7 +40,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loginUser, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, loginUser, logout, isLoading, updateVerificationStatus }}>
       {children}
     </AuthContext.Provider>
   )
