@@ -45,7 +45,7 @@ export default function RegisterPage() {
   const pwStrength = strength(form.password)
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center auth-bg py-4">
+    <div className="min-vh-100 d-flex align-items-center justify-content-center py-4">
       <div className="card auth-card p-4" style={{ width: '100%', maxWidth: 480 }}>
         <div className="text-center mb-4">
           <Link to="/"><img src={logoMark} alt="Pravesh" style={{ width: 56 }} /></Link>

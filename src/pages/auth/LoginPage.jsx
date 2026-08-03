@@ -14,15 +14,23 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   const routeByRole = (auth) => {
-    const { role, verificationStatus } = auth
-    if ((role === 'RESIDENT' || role === 'SOCIETY_ADMIN') && verificationStatus === 'PENDING') {
-      navigate('/access-pending'); return
+  const { role, verificationStatus } = auth
+  if ((role === 'RESIDENT' || role === 'SOCIETY_ADMIN') && verificationStatus === 'PENDING') {
+    navigate('/access-pending'); return
+  }
+  if (role === 'SUPER_ADMIN') navigate('/super-admin')
+  else if (role === 'SOCIETY_ADMIN') navigate('/dashboard')
+  else if (role === 'RESIDENT') navigate('/dashboard')
+  else if (role === 'GUARD') navigate('/guard')
+  else navigate('/')
+}
+
+  const decodeJwtPayload = (token) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]))
+    } catch {
+      return {}
     }
-    if (role === 'SUPER_ADMIN') navigate('/super-admin')
-    else if (role === 'SOCIETY_ADMIN') navigate('/admin')
-    else if (role === 'RESIDENT') navigate('/resident')
-    else if (role === 'GUARD') navigate('/guard')
-    else navigate('/')
   }
 
   const handleLogin = async () => {
@@ -33,9 +41,12 @@ export default function LoginPage() {
     try {
       const res = await login(form)
       const auth = res.data.data
-      loginUser(auth)
+      const claims = decodeJwtPayload(auth.token)
+      const authWithSociety = { ...auth, societyId: claims.societyId }
+
+      loginUser(authWithSociety)
       showToast(`Welcome back, ${auth.name}!`, 'success')
-      routeByRole(auth)
+      routeByRole(authWithSociety)
     } catch (err) {
       showToast(err.response?.data?.message || 'Login failed. Check credentials.', 'error')
     } finally {
@@ -46,7 +57,7 @@ export default function LoginPage() {
   const onKey = (e) => { if (e.key === 'Enter') handleLogin() }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center auth-bg">
+    <div className="min-vh-100 d-flex align-items-center justify-content-center">
       <div className="card auth-card p-4" style={{ width: '100%', maxWidth: 420 }}>
         <div className="text-center mb-4">
           <Link to="/"><img src={logoMark} alt="Pravesh" style={{ width: 64 }} /></Link>
