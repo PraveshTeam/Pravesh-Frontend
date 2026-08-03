@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import Navbar from '../../components/common/Navbar'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import './ContactPage.css'
 
 export default function ContactPage() {
+  useScrollReveal()
+
   const [submitted, setSubmitted] = useState(false)
 
   const handleSubmit = (e) => {
@@ -13,11 +16,24 @@ export default function ContactPage() {
   return (
     <>
       <Navbar />
-      <div className="contact-page">
+      <div className="contact-page pv-page">
+
+        <section className="pv-banner">
+          <div className="pv-banner-aurora" aria-hidden="true"><span></span><span></span></div>
+          <div className="pv-banner-noise" aria-hidden="true"></div>
+          <div className="pv-banner-dots" aria-hidden="true"></div>
+          <div className="pv-banner-inner">
+            <div className="pv-pill"><span className="pv-pill-dot"></span>Contact</div>
+            <h1>Let's talk about<br /><span className="pv-glow">your community</span>.</h1>
+            <p>Questions, a demo, or help getting set up — we usually reply within 24 hours.</p>
+          </div>
+        </section>
+
+        <div className="contact-body">
         <div className="row g-4">
 
           <div className="col-md-6">
-            <div className="contact-info">
+            <div className="contact-info pv-card" data-reveal>
               <h2 className="mb-3">Get in Touch</h2>
               <p className="para mb-4">
                 Questions about Pravesh, want a demo for your society, or found a bug?
@@ -49,7 +65,7 @@ export default function ContactPage() {
           </div>
 
           <div className="col-md-6">
-            <div className="contact-form">
+            <div className="contact-form pv-card" data-reveal>
               {!submitted ? (
                 <form onSubmit={handleSubmit}>
                   <h2 className="mb-4">Send a Message</h2>
@@ -71,7 +87,7 @@ export default function ContactPage() {
                     <textarea className="form-control custom-pravesh-input" rows={4} placeholder="Your message..." required></textarea>
                   </div>
 
-                  <button type="submit" className="btn btn-pravesh w-100 py-2">
+                  <button type="submit" className="pv-btn-glow w-100 justify-content-center">
                     <i className="bi bi-send-fill me-2"></i>Send Message
                   </button>
                 </form>
@@ -85,6 +101,7 @@ export default function ContactPage() {
             </div>
           </div>
 
+        </div>
         </div>
       </div>
     </>

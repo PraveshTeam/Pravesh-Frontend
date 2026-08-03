@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
+import BackButton from '../../components/common/BackButton'
 
 export default function ProfilePage() {
   const { user, loginUser } = useAuth()
@@ -42,21 +43,46 @@ export default function ProfilePage() {
     <>
       <Navbar />
       <div className="container py-4" style={{ maxWidth: 520 }}>
+        <BackButton label="Back" />
         <div className="page-header">
           <h4 className="mb-0"><i className="bi bi-person-circle me-2"></i>My Profile</h4>
         </div>
 
         {loading ? <LoadingSpinner text="Loading your profile..." /> : profile && (
           <div className="card p-4">
-            <div className="mb-3 text-center">
+            <div className="mb-4 text-center">
               <span className="badge bg-primary fs-6">{profile.role}</span>
-              <div className="mt-2 d-flex flex-wrap justify-content-center gap-3">
-                {profile.flatId && <span className="text-muted small">Flat ID: {profile.flatId}</span>}
-                {profile.gateId && <span className="text-muted small">Gate ID: {profile.gateId}</span>}
-                {profile.societyId && <span className="text-muted small">Society ID: {profile.societyId}</span>}
-                {profile.verificationStatus &&
-                  <span className="text-muted small">Status: {profile.verificationStatus}</span>}
-              </div>
+
+              {(profile.societyName || profile.flatNumber) && (
+                <div className="mt-3">
+                  <div className="d-inline-flex align-items-center gap-2 border rounded-pill px-3 py-2"
+                    style={{ background: 'var(--p-bg)' }}>
+                    <i className="bi bi-building text-primary"></i>
+                    <span className="small fw-semibold">
+                      {profile.societyName || 'Society —'}
+                      {profile.societyId && <span className="text-muted fw-normal"> (ID: {profile.societyId})</span>}
+                      {profile.flatNumber && (
+                        <>
+                          {' · '}Flat {profile.flatNumber}
+                          {profile.tower ? ` — Tower ${profile.tower}` : ''}
+                          {profile.flatId && <span className="text-muted fw-normal"> (ID: {profile.flatId})</span>}
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {profile.gateId && (
+                <div className="text-muted small mt-2">Gate ID: {profile.gateId}</div>
+              )}
+              {profile.verificationStatus && (
+                <div className="mt-2">
+                  <span className={`badge ${profile.verificationStatus === 'VERIFIED' ? 'bg-success' : 'bg-warning text-dark'}`}>
+                    {profile.verificationStatus}
+                  </span>
+                </div>
+              )}
             </div>
 
             <form onSubmit={handleUpdate}>
@@ -77,9 +103,8 @@ export default function ProfilePage() {
               </div>
               <button type="submit" className="btn btn-pravesh w-100" disabled={saving}>
                 {saving
-                  ? <span className="spinner-border spinner-border-sm me-2"></span>
-                  : <i className="bi bi-save me-2"></i>}
-                {saving ? 'Saving...' : 'Save Changes'}
+                  ? <><span className="spinner-border spinner-border-sm me-2"></span>Saving...</>
+                  : <><i className="bi bi-save me-2"></i>Save Changes</>}
               </button>
             </form>
           </div>

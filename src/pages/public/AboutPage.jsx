@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import logoMark from '../../assets/logo.png'
 import './AboutPage.css'
 import varadImg from '../../assets/varad.jpg';
@@ -43,7 +44,7 @@ const teamMembers = [
     name: 'Ritik Garhewal',
     role: 'Frontend Developer',
     photo: ritikImg,
-    bio: 'Developed responsive user interfaces using React 18 and Bootstrap. Built reusable components, integrated REST APIs, and created intuitive navigation for resident, guard, and admin dashboards.',
+    bio: 'Developed responsive user interfaces using React 18 and React Bootstrap, building dedicated dashboards for residents, guards, and admins. Integrated REST APIs across all 14 microservices through the API Gateway, implemented WebSocket STOMP connections for real-time entry and SOS notifications, and ensured a consistent, intuitive experience across every role-based screen.',
     email: 'ritik.garhewal.cmfeb26@gmail.com',
     linkedin: 'https://www.linkedin.com/in/ritikgarhewal',
     github: 'https://github.com/ritikgarhewalcmfeb26',
@@ -53,7 +54,7 @@ const teamMembers = [
     name: 'Salonee Pravin Shirsat',
     role: 'Backend Developer',
     photo: saloneeImg,
-    bio: 'Developed secure backend APIs using .NET 8, implemented visitor pass generation, QR code verification, and managed database operations to ensure reliable gate management.',
+    bio: 'Built the Pass-Service and Validation-Service in Spring Boot, implementing QR code generation with ZXing and race-condition-free scan validation using MySQL Pessimistic Locking (SELECT FOR UPDATE). Applied Jakarta Bean Validation and Global Exception Handling on all endpoints to ensure clean, consistent API responses.',
     email: 'shirsatsalonee510@gmail.com',
     linkedin: 'https://www.linkedin.com/in/salonee-shirsat-325517248',
     github: 'https://github.com/89285-Salonee',
@@ -63,7 +64,7 @@ const teamMembers = [
     name: 'Shreya Jangid',
     role: 'Backend Developer',
     photo: shreyaImg,
-    bio: 'Implemented business logic, role-based workflows, and database integration using .NET 8. Ensured efficient communication between resident, guard, and administrator modules.',
+    bio: 'Developed the Forum-Service and Notification-Service in Spring Boot, using MongoDB for channel-specific notification payloads (OTP, SOS, entry, receipts). Built the RabbitMQ-based transactional outbox for guaranteed OTP and alert delivery, and implemented email + SMS dispatch via JavaMailSender and Twilio.',
     email: 'shreyajangid12@gmail.com',
     linkedin: 'https://www.linkedin.com/in/shreyajangid/',
     github: 'https://github.com/shreyajangid12',
@@ -73,7 +74,7 @@ const teamMembers = [
     name: 'Sneha Raja Ghongade',
     role: 'Full Stack Developer',
     photo: snehaImg,
-    bio: 'Developed full-stack features using .NET 8, React 18, and Bootstrap. Built secure backend APIs, designed database modules, and created responsive user interfaces with seamless API integration.',
+    bio: 'Delivered the Analytics-Service and Dashboard-Service end-to-end, using OpenFeign fan-out to aggregate data from every microservice into a single composed response. Built the corresponding React 18 dashboard views with live charts, ensuring the backend aggregation and frontend visualization stayed tightly integrated.',
     email: 'snehaghongade642@gmail.com',
     linkedin: 'https://www.linkedin.com/in/sneha-ghongade',
     github: 'https://github.com/snehaghongadeDev',
@@ -81,9 +82,9 @@ const teamMembers = [
   {
     id: 5,
     name: 'Varad Nishant Patil',
-    role: 'Backend Developer',
+    role: 'Project Lead & Backend Developer',
     photo: varadImg,
-    bio: 'Led backend development using .NET 8 by designing the application architecture, implementing JWT-based authentication and authorization, developing secure REST APIs, and designing the MySQL database for a scalable visitor management system.',
+    bio: 'Led the project as Project Lead, architecting the Spring Boot microservices platform on Spring Cloud (Eureka + Gateway). Designed the User-Service with JWT-based authentication and role-based authorization (RESIDENT/GUARD/SOCIETY_ADMIN/SUPER_ADMIN), defined the shared-PK entity model, and owned the overall MySQL database design and service boundaries across the platform.',
     email: 'varadpatil466@gmail.com',
     linkedin: 'https://www.linkedin.com/in/varad-nishant-patil-4159822b0',
     github: 'https://github.com/Varadpatil1812',
@@ -93,7 +94,7 @@ const teamMembers = [
     name: 'Vyankatesh Deepak Wakde',
     role: 'Backend Developer',
     photo: vyankiiImg,
-    bio: 'Contributed to the end-to-end backend development of a web application using .NET 8, focusing on API development, database design,          user authentication, and system security.',
+    bio: 'Built the SOS-Service and Payment-Service in Spring Boot, implementing WebSocket STOMP for sub-second emergency alert push and Razorpay integration with webhook signature verification for maintenance payments. Ensured both services followed the platform-wide standard for validation and exception handling.',
     email: 'vyankateshwakde23@gmail.com',
     linkedin: 'https://www.linkedin.com/in/vyankatesh-wakde-6b5a3334b',
     github: 'https://github.com/vyankateshwakdecmfeb26',
@@ -101,13 +102,30 @@ const teamMembers = [
 ];
 
 export default function AboutPage() {
+  useScrollReveal()
+
   return (
     <>
       <Navbar />
-      <div className="about-page">
+      <div className="about-page pv-page">
+
+        {/* ── Dark banner ── */}
+        <section className="pv-banner">
+          <div className="pv-banner-aurora" aria-hidden="true"><span></span><span></span></div>
+          <div className="pv-banner-noise" aria-hidden="true"></div>
+          <div className="pv-banner-dots" aria-hidden="true"></div>
+          <div className="pv-banner-inner">
+            <div className="pv-pill"><span className="pv-pill-dot"></span>About Pravesh</div>
+            <h1>Built by a team that<br /><span className="pv-glow">ships real software</span>.</h1>
+            <p>
+              Pravesh is an intelligent access control system for gated communities —
+              replacing paper registers with a fast, fully digital pass-and-verification platform.
+            </p>
+          </div>
+        </section>
 
         {/* ── Hero Info Card ── */}
-        <div className="about-hero-card">
+        <div className="about-hero-card" data-reveal>
           <div className="about-hero-text">
             <p className="about-hero-lead">
               <i>Pravesh is an intelligent access control system built to secure gated communities.</i>
@@ -129,11 +147,15 @@ export default function AboutPage() {
 
         {/* ── Team Section ── */}
         <div className="about-inner">
-          <h2 className="team-heading">Meet The Team</h2>
+          <div className="pv-sec-head" data-reveal>
+            <span className="pv-eyebrow">Who built it</span>
+            <h2 className="pv-sec-title">Meet The <span className="pv-grad">Team</span></h2>
+          </div>
 
           <div className="card-section">
             {teamMembers.map(member => (
-              <div className="info-card" key={member.id}>
+              <div className="info-card pv-card" key={member.id} data-reveal>
+                <div className="pv-card-glow"></div>
                 {member.photo ? (
                   <img src={member.photo} alt={member.name} className="member-photo" />
                 ) : (
@@ -158,7 +180,7 @@ export default function AboutPage() {
           </div>
 
           {/* ── Mission Card ── */}
-          <div className="card mission-card">
+          <div className="card mission-card" data-reveal>
             <div className="card-body">
               <h2 className="mission-title">Our Mission</h2>
               <p className="mission-text">
@@ -170,8 +192,8 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="text-center mt-4 mb-5">
-            <Link to="/register" className="btn-primary-gold-about">Join Pravesh</Link>
+          <div className="text-center mt-4 mb-5" data-reveal>
+            <Link to="/register" className="pv-btn-glow"><span>Join Pravesh</span><i className="bi bi-arrow-right"></i></Link>
           </div>
         </div>
 
