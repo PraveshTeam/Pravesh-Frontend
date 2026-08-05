@@ -82,9 +82,9 @@ const teamMembers = [
   {
     id: 5,
     name: 'Varad Nishant Patil',
-    role: 'Project Lead & Backend Developer',
+    role: 'Backend Developer',
     photo: varadImg,
-    bio: 'Led the project as Project Lead, architecting the Spring Boot microservices platform on Spring Cloud (Eureka + Gateway). Designed the User-Service with JWT-based authentication and role-based authorization (RESIDENT/GUARD/SOCIETY_ADMIN/SUPER_ADMIN), defined the shared-PK entity model, and owned the overall MySQL database design and service boundaries across the platform.',
+    bio: 'Architecting the Spring Boot microservices platform on Spring Cloud (Eureka + Gateway). Designed the User-Service with JWT-based authentication and role-based authorization (RESIDENT/GUARD/SOCIETY_ADMIN/SUPER_ADMIN), defined the shared-PK entity model, and owned the overall MySQL database design and service boundaries across the platform.',
     email: 'varadpatil466@gmail.com',
     linkedin: 'https://www.linkedin.com/in/varad-nishant-patil-4159822b0',
     github: 'https://github.com/Varadpatil1812',
