@@ -3,13 +3,30 @@ import Navbar from '../../components/common/Navbar'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import './ContactPage.css'
 
+const CONTACT_EMAIL = 'pravesh.notify@gmail.com'
+
 export default function ContactPage() {
   useScrollReveal()
 
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+
+  const handleChange = (field) => (e) => {
+    setForm(f => ({ ...f, [field]: e.target.value }))
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    const bodyText =
+      `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`
+
+    const gmailComposeUrl =
+      `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}` +
+      `&su=${encodeURIComponent(form.subject)}` +
+      `&body=${encodeURIComponent(bodyText)}`
+
+    window.open(gmailComposeUrl, '_blank', 'noopener,noreferrer')
     setSubmitted(true)
   }
 
@@ -51,10 +68,10 @@ export default function ContactPage() {
               <div className="contact-item mb-3">
                 <h5><i className="bi bi-envelope-fill me-2"></i>Email</h5>
                 <a
-                  href="https://mail.google.com/mail/?view=cm&fs=1&to=info@pravesh.in"
+                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}`}
                   target="_blank" rel="noreferrer" className="para contact-link"
                 >
-                  pravesh.notify@gmail.com
+                  {CONTACT_EMAIL}
                 </a>
               </div>
               <div className="contact-item">
@@ -72,19 +89,23 @@ export default function ContactPage() {
 
                   <div className="mb-3">
                     <label className="form-label">Your Name</label>
-                    <input type="text" className="form-control custom-pravesh-input" placeholder="Enter your name" required />
+                    <input type="text" className="form-control custom-pravesh-input" placeholder="Enter your name"
+                      value={form.name} onChange={handleChange('name')} required />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Email Address</label>
-                    <input type="email" className="form-control custom-pravesh-input" placeholder="you@example.com" required />
+                    <input type="email" className="form-control custom-pravesh-input" placeholder="you@example.com"
+                      value={form.email} onChange={handleChange('email')} required />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Subject</label>
-                    <input type="text" className="form-control custom-pravesh-input" placeholder="How can we help?" required />
+                    <input type="text" className="form-control custom-pravesh-input" placeholder="How can we help?"
+                      value={form.subject} onChange={handleChange('subject')} required />
                   </div>
                   <div className="mb-4">
                     <label className="form-label">Message</label>
-                    <textarea className="form-control custom-pravesh-input" rows={4} placeholder="Your message..." required></textarea>
+                    <textarea className="form-control custom-pravesh-input" rows={4} placeholder="Your message..."
+                      value={form.message} onChange={handleChange('message')} required></textarea>
                   </div>
 
                   <button type="submit" className="pv-btn-glow w-100 justify-content-center">
@@ -94,8 +115,10 @@ export default function ContactPage() {
               ) : (
                 <div id="thanks-pravesh" className="text-center">
                   <i className="bi bi-check-circle-fill" style={{ fontSize: '3rem', color: '#198754' }}></i>
-                  <h2 className="mt-3 mb-2">Message Received!</h2>
-                  <p className="para">Thank you for reaching out. Our team will respond within 24 hours.</p>
+                  <h2 className="mt-3 mb-2">Almost there!</h2>
+                  <p className="para">
+                    We've opened Gmail in a new tab with your message pre-filled — just hit send from there to reach us.
+                  </p>
                 </div>
               )}
             </div>
