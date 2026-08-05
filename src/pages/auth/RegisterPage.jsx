@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { register } from '../../api/endpoints'
+import { register, sendRegistrationOtp, verifyRegistrationOtp } from '../../api/endpoints'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { INDIAN_STATES } from '../../utils/indianStates'
@@ -17,6 +17,34 @@ export default function RegisterPage() {
   })
   const [loading, setLoading] = useState(false)
 
+  // ── Email verification state ──
+  const [emailOtp, setEmailOtp] = useState('')
+  const [emailOtpSent, setEmailOtpSent] = useState(false)
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [emailSending, setEmailSending] = useState(false)
+  const [emailVerifying, setEmailVerifying] = useState(false)
+  const [emailCooldown, setEmailCooldown] = useState(0)
+
+  // ── Phone verification state ──
+  const [phoneOtp, setPhoneOtp] = useState('')
+  const [phoneOtpSent, setPhoneOtpSent] = useState(false)
+  const [phoneVerified, setPhoneVerified] = useState(false)
+  const [phoneSending, setPhoneSending] = useState(false)
+  const [phoneVerifying, setPhoneVerifying] = useState(false)
+  const [phoneCooldown, setPhoneCooldown] = useState(0)
+
+  useEffect(() => {
+    if (emailCooldown <= 0) return
+    const t = setTimeout(() => setEmailCooldown(c => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [emailCooldown])
+
+  useEffect(() => {
+    if (phoneCooldown <= 0) return
+    const t = setTimeout(() => setPhoneCooldown(c => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [phoneCooldown])
+
   const strength = (pw) => {
     if (!pw) return null
     if (pw.length < 8) return { label: 'Too short (min 8 characters)', cls: 'bg-danger', pct: 33 }
@@ -24,9 +52,75 @@ export default function RegisterPage() {
     return { label: 'Strong', cls: 'bg-success', pct: 100 }
   }
 
+  // Editing an already-sent/verified email or phone invalidates that verification —
+  // the user must verify the new value before Register unlocks again.
+  const handleEmailChange = (val) => {
+    setForm(f => ({ ...f, email: val }))
+    if (emailVerified || emailOtpSent) {
+      setEmailVerified(false); setEmailOtpSent(false); setEmailOtp('')
+    }
+  }
+
+  const handlePhoneChange = (val) => {
+    setForm(f => ({ ...f, phone: val }))
+    if (phoneVerified || phoneOtpSent) {
+      setPhoneVerified(false); setPhoneOtpSent(false); setPhoneOtp('')
+    }
+  }
+
+  const sendEmailOtp = async () => {
+    if (!form.email) { showToast('Please enter your email first.', 'warning'); return }
+    setEmailSending(true)
+    try {
+      await sendRegistrationOtp({ contactType: 'EMAIL', value: form.email })
+      showToast('OTP sent to your email.', 'success')
+      setEmailOtpSent(true); setEmailCooldown(90)
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to send OTP.', 'error')
+    } finally { setEmailSending(false) }
+  }
+
+  const verifyEmailOtp = async () => {
+    if (emailOtp.length !== 6) { showToast('Enter the full 6-digit code.', 'warning'); return }
+    setEmailVerifying(true)
+    try {
+      await verifyRegistrationOtp({ contactType: 'EMAIL', value: form.email, otp: emailOtp })
+      setEmailVerified(true); setEmailOtpSent(false); setEmailOtp('')
+      showToast('Email verified.', 'success')
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Invalid or expired code.', 'error')
+    } finally { setEmailVerifying(false) }
+  }
+
+  const sendPhoneOtp = async () => {
+    if (!form.phone) { showToast('Please enter your phone number first.', 'warning'); return }
+    setPhoneSending(true)
+    try {
+      await sendRegistrationOtp({ contactType: 'PHONE', value: form.phone })
+      showToast('OTP sent to your phone.', 'success')
+      setPhoneOtpSent(true); setPhoneCooldown(90)
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to send OTP.', 'error')
+    } finally { setPhoneSending(false) }
+  }
+
+  const verifyPhoneOtp = async () => {
+    if (phoneOtp.length !== 6) { showToast('Enter the full 6-digit code.', 'warning'); return }
+    setPhoneVerifying(true)
+    try {
+      await verifyRegistrationOtp({ contactType: 'PHONE', value: form.phone, otp: phoneOtp })
+      setPhoneVerified(true); setPhoneOtpSent(false); setPhoneOtp('')
+      showToast('Phone number verified.', 'success')
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Invalid or expired code.', 'error')
+    } finally { setPhoneVerifying(false) }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.state) { showToast('Please select your state.', 'warning'); return }
+    if (!emailVerified) { showToast('Please verify your email first.', 'warning'); return }
+    if (!phoneVerified) { showToast('Please verify your phone number first.', 'warning'); return }
     setLoading(true)
     try {
       const res = await register(form)
@@ -43,6 +137,7 @@ export default function RegisterPage() {
   }
 
   const pwStrength = strength(form.password)
+  const canRegister = emailVerified && phoneVerified
 
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center py-4">
@@ -66,16 +161,137 @@ export default function RegisterPage() {
             <input className="form-control" value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} required />
           </div>
+
+          {/* ── Email + inline verification ── */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Email</label>
-            <input type="email" className="form-control" value={form.email}
-              onChange={e => setForm({ ...form, email: e.target.value })} required />
+            <div className="d-flex gap-2">
+              <input
+                type="email"
+                className="form-control"
+                value={form.email}
+                onChange={e => handleEmailChange(e.target.value)}
+                readOnly={emailVerified}
+                required
+              />
+              {emailVerified ? (
+                <button type="button" className="btn btn-outline-success flex-shrink-0"
+                  style={{ whiteSpace: 'nowrap' }}
+                  onClick={() => { setEmailVerified(false); setEmailOtpSent(false); setEmailOtp('') }}>
+                  <i className="bi bi-check-circle-fill me-1"></i>Verified
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-outline-primary flex-shrink-0"
+                  style={{ whiteSpace: 'nowrap' }}
+                  onClick={sendEmailOtp}
+                  disabled={emailSending || !form.email || emailCooldown > 0}
+                >
+                  {emailSending
+                    ? <span className="spinner-border spinner-border-sm"></span>
+                    : emailCooldown > 0
+                      ? `Resend ${emailCooldown}s`
+                      : (emailOtpSent ? 'Resend OTP' : 'Send OTP')}
+                </button>
+              )}
+            </div>
+
+            {emailOtpSent && !emailVerified && (
+              <div className="mt-2 p-2 border rounded bg-light">
+                <label className="form-label small fw-semibold mb-1">
+                  Enter the 6-digit code sent to {form.email}
+                </label>
+                <div className="d-flex gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    className="form-control"
+                    placeholder="6-digit OTP"
+                    value={emailOtp}
+                    onChange={e => setEmailOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  />
+                  <button type="button" className="btn btn-pravesh flex-shrink-0"
+                    onClick={verifyEmailOtp} disabled={emailVerifying || emailOtp.length !== 6}>
+                    {emailVerifying ? <span className="spinner-border spinner-border-sm"></span> : 'Verify'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {emailVerified && (
+              <div className="small text-success mt-1">
+                <i className="bi bi-patch-check-fill me-1"></i>Email verified
+              </div>
+            )}
           </div>
+
+          {/* ── Phone + inline verification ── */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Phone</label>
-            <input className="form-control" placeholder="9876543210" value={form.phone}
-              onChange={e => setForm({ ...form, phone: e.target.value })} required />
+            <div className="d-flex gap-2">
+              <input
+                className="form-control"
+                placeholder="9876543210"
+                value={form.phone}
+                onChange={e => handlePhoneChange(e.target.value)}
+                readOnly={phoneVerified}
+                required
+              />
+              {phoneVerified ? (
+                <button type="button" className="btn btn-outline-success flex-shrink-0"
+                  style={{ whiteSpace: 'nowrap' }}
+                  onClick={() => { setPhoneVerified(false); setPhoneOtpSent(false); setPhoneOtp('') }}>
+                  <i className="bi bi-check-circle-fill me-1"></i>Verified
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-outline-primary flex-shrink-0"
+                  style={{ whiteSpace: 'nowrap' }}
+                  onClick={sendPhoneOtp}
+                  disabled={phoneSending || !form.phone || phoneCooldown > 0}
+                >
+                  {phoneSending
+                    ? <span className="spinner-border spinner-border-sm"></span>
+                    : phoneCooldown > 0
+                      ? `Resend ${phoneCooldown}s`
+                      : (phoneOtpSent ? 'Resend OTP' : 'Send OTP')}
+                </button>
+              )}
+            </div>
+
+            {phoneOtpSent && !phoneVerified && (
+              <div className="mt-2 p-2 border rounded bg-light">
+                <label className="form-label small fw-semibold mb-1">
+                  Enter the 6-digit code sent to {form.phone}
+                </label>
+                <div className="d-flex gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    className="form-control"
+                    placeholder="6-digit OTP"
+                    value={phoneOtp}
+                    onChange={e => setPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  />
+                  <button type="button" className="btn btn-pravesh flex-shrink-0"
+                    onClick={verifyPhoneOtp} disabled={phoneVerifying || phoneOtp.length !== 6}>
+                    {phoneVerifying ? <span className="spinner-border spinner-border-sm"></span> : 'Verify'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {phoneVerified && (
+              <div className="small text-success mt-1">
+                <i className="bi bi-patch-check-fill me-1"></i>Phone number verified
+              </div>
+            )}
           </div>
+
           <div className="mb-3">
             <label className="form-label fw-semibold">Password</label>
             <PasswordInput
@@ -91,22 +307,6 @@ export default function RegisterPage() {
                   <div className={`progress-bar ${pwStrength.cls}`} style={{ width: `${pwStrength.pct}%` }}></div>
                 </div>
                 <small className="text-muted">{pwStrength.label}</small>
-              </div>
-            )}
-            {form.password && (
-              <div className="mt-1">
-                <div className="progress" style={{ height: 4 }}>
-                  <div
-                    className={`progress-bar ${form.password.length < 8 ? 'bg-danger' :
-                        form.password.length < 12 ? 'bg-warning' : 'bg-success'
-                      }`}
-                    style={{ width: `${Math.min(form.password.length * 8, 100)}%` }}
-                  ></div>
-                </div>
-                <small className="text-muted">
-                  {form.password.length < 8 ? 'Too short (min 8 characters)' :
-                    form.password.length < 12 ? 'Good' : 'Strong'}
-                </small>
               </div>
             )}
           </div>
@@ -130,11 +330,16 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <button type="submit" className="btn btn-pravesh w-100 py-2" disabled={loading}>
+          <button type="submit" className="btn btn-pravesh w-100 py-2" disabled={loading || !canRegister}>
             {loading ? <span className="spinner-border spinner-border-sm me-2"></span>
               : <i className="bi bi-person-check me-2"></i>}
             {loading ? 'Registering...' : 'Register'}
           </button>
+          {!canRegister && (
+            <div className="form-text text-center mt-2">
+              Verify your email and phone number to enable registration.
+            </div>
+          )}
         </form>
 
         <p className="text-center text-muted small mt-3">
