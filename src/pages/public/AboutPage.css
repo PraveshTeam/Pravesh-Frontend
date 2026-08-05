@@ -11,10 +11,10 @@
   --p-gold-light:  #f5a83f;
   --p-text:        #1f2937;
   --p-text-muted:  #5c6b7a;
-  --p-surface:     #ffffff;
-  --p-surface2:    #f4f6f9;
-  --p-border:      #e2e8f0;
-  --p-border-bright: #c9d6e3;
+  --p-surface:     #f1efe8;
+  --p-surface2:    #eae7de;
+  --p-border:      #e0dcd2;
+  --p-border-bright: #d3cec2;
 
   max-width: 1200px;
   margin: 0 auto;
@@ -215,14 +215,14 @@
 
 /* ── Mission Card ── */
 .mission-card {
-  background: linear-gradient(135deg, var(--p-navy), var(--p-navy-deep)) !important;
-  border: none !important;
+  background: linear-gradient(160deg, #ede9e1, var(--p-surface)) !important;
+  border: 1px solid var(--p-border) !important;
   border-radius: 16px !important;
   margin-bottom: 8px;
 }
 
 .mission-title {
-  color: #fff;
+  color: var(--p-navy);
   letter-spacing: 0.5px;
   text-align: center;
   font-weight: 700;
@@ -230,7 +230,7 @@
 }
 
 .mission-text {
-  color: rgba(255,255,255,0.85);
+  color: var(--p-text-muted);
   font-size: 15px;
   line-height: 1.85;
   text-align: center;
@@ -309,8 +309,15 @@
 .card-section {
   display: grid; grid-template-columns: repeat(3, 1fr);
   gap: 20px; margin-bottom: 60px;
+  align-items: stretch;
 }
-.info-card { padding: 30px 24px; text-align: center; border-radius: 22px !important; }
+.info-card {
+  padding: 30px 24px; text-align: center; border-radius: 22px !important;
+  width: auto; max-width: none;          /* clear the old flex-layout widths */
+  height: 100%;                          /* fill the grid cell → equal heights */
+  display: flex; flex-direction: column; /* let the bio grow, socials sink */
+}
+.info-card .about-para { flex: 1 1 auto; }   /* bio absorbs the slack */
 .member-photo {
   width: 92px; height: 92px; border-radius: 50%;
   object-fit: cover; margin-bottom: 16px;
@@ -327,7 +334,7 @@
 }
 .info-card .about-para { font-size: 13.5px; }
 
-.social-links { display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
+.social-links { display: flex; justify-content: center; gap: 10px; margin-top: auto; padding-top: 18px; }
 .social-link-pravesh {
   width: 36px; height: 36px; border-radius: 11px;
   display: grid; place-items: center;
@@ -343,22 +350,23 @@
 
 .mission-card {
   position: relative; overflow: hidden;
-  border: none !important; border-radius: 26px !important;
-  background: var(--pv-ink) !important;
+  border: 1px solid var(--pv-line) !important; border-radius: 26px !important;
+  background: linear-gradient(160deg, #ede9e1, var(--pv-surface)) !important;
+  box-shadow: 0 12px 34px rgba(13,35,56,.08);
   padding: 12px; margin-bottom: 40px;
 }
 .mission-card::before {
   content:''; position:absolute; inset:-40%;
   background:
-    radial-gradient(circle at 22% 40%, rgba(232,135,26,.4), transparent 55%),
-    radial-gradient(circle at 80% 60%, rgba(44,93,140,.55), transparent 55%);
-  filter: blur(80px); animation: pv-drift-a 24s ease-in-out infinite;
+    radial-gradient(circle at 22% 40%, rgba(232,135,26,.14), transparent 55%),
+    radial-gradient(circle at 80% 60%, rgba(44,93,140,.14), transparent 55%);
+  filter: blur(70px); animation: pv-drift-a 24s ease-in-out infinite;
   pointer-events:none;
 }
 .mission-card .card-body { position: relative; z-index: 1; padding: 40px; text-align: center; }
-.mission-title { color: #fff; font-size: clamp(1.4rem,2.8vw,1.9rem); margin-bottom: 14px; }
+.mission-title { color: var(--pv-ink); font-size: clamp(1.4rem,2.8vw,1.9rem); margin-bottom: 14px; }
 .mission-text {
-  color: rgba(255,255,255,.62); font-size: 15.5px;
+  color: var(--pv-txt-mute); font-size: 15.5px;
   line-height: 1.85; max-width: 760px; margin: 0 auto;
 }
 
@@ -370,219 +378,4 @@
   .card-section { grid-template-columns: 1fr; }
   .about-inner { padding: 48px 18px 60px; }
   .mission-card .card-body { padding: 28px 20px; }
-}
-
-/* ═══════════════════════════════════════════════
-   DARK MODE OVERRIDES — about page
-═══════════════════════════════════════════════ */
-
-.about-page { background: transparent; }
-
-.about-hero-card {
-  background: linear-gradient(160deg, rgba(22,32,47,.94), rgba(16,24,39,.94));
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--pv-line);
-  box-shadow: 0 20px 50px rgba(0,0,0,.55);
-}
-.about-hero-lead { color: var(--pv-txt); }
-.about-para      { color: var(--pv-txt-mute); }
-
-.member-photo {
-  border: 3px solid rgba(255,255,255,.12);
-  box-shadow: 0 8px 26px rgba(0,0,0,.55);
-}
-.member-name { color: var(--pv-txt); }
-.member-role { color: var(--pv-gold-lite); }
-
-.social-link-pravesh {
-  background: rgba(255,255,255,.06);
-  border: 1px solid var(--pv-line);
-  color: var(--pv-txt-mute);
-}
-.social-link-pravesh:hover {
-  background: linear-gradient(135deg, var(--pv-gold), var(--pv-gold-lite));
-  border-color: transparent;
-  color: #16202f;
-  box-shadow: 0 8px 22px rgba(240,160,52,.4);
-}
-
-.mission-card { background: linear-gradient(160deg, #0d1526, #070b14) !important; }
-.mission-text { color: var(--pv-txt-mute); }
-
-/* Legacy --p-* tokens in this file's :root are light and global.
-   Re-point them at the dark palette so they can't leak white
-   surfaces into the rest of the app. */
-:root {
-  --p-navy:          #16233a;
-  --p-navy-deep:     #0d1526;
-  --p-navy-light:    #2c5d8c;
-  --p-gold:          #f0a034;
-  --p-gold-light:    #ffc46b;
-  --p-text:          #e9eef7;
-  --p-text-muted:    #6f819c;
-  --p-surface:       #101827;
-  --p-surface2:      #070b14;
-  --p-border:        rgba(255,255,255,.09);
-  --p-border-bright: rgba(255,255,255,.2);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
-   TEAM GRID — layout fix + continuous neon border
-   Earlier passes left flex-era sizing on .info-card while .card-section
-   became a grid, so cards never filled their column and rows misaligned.
-   This block is last, so it wins.
-═══════════════════════════════════════════════════════════════════════ */
-
-/* Animated angle for the rotating border. Registering it with @property
-   is what lets a conic-gradient actually interpolate instead of snapping. */
-@property --nb-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-.card-section {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 26px;
-  align-items: stretch;      /* every card matches the tallest in its row */
-  margin-bottom: 64px;
-}
-
-.info-card {
-  /* kill the leftover flex-era sizing */
-  width: auto !important;
-  max-width: none !important;
-  min-width: 0 !important;
-
-  /* column layout so the bio can grow and the socials pin to the bottom */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  padding: 30px 24px 24px;
-  border-radius: 20px !important;
-  isolation: isolate;
-  overflow: visible;          /* let the neon ring sit just outside the edge */
-}
-
-/* ── Continuous neon border ──────────────────────────────────────────
-   A conic gradient rotates behind the card and is masked to a 1px ring,
-   so a light travels the full perimeter forever. */
-.info-card::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: conic-gradient(from var(--nb-angle),
-      transparent 0%,
-      rgba(240,160,52,.95) 8%,
-      rgba(255,196,107,.75) 14%,
-      transparent 26%,
-      transparent 54%,
-      rgba(34,211,238,.85) 64%,
-      rgba(103,232,249,.6) 70%,
-      transparent 82%,
-      transparent 100%);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  animation: nb-rotate 6s linear infinite;
-  opacity: .75;
-  transition: opacity .35s var(--pv-ease);
-  pointer-events: none;
-  z-index: 0;
-}
-@keyframes nb-rotate { to { --nb-angle: 360deg; } }
-
-/* Stagger each card so the lights don't march in lockstep */
-.info-card:nth-child(2)::before { animation-delay: -1s;   }
-.info-card:nth-child(3)::before { animation-delay: -2s;   }
-.info-card:nth-child(4)::before { animation-delay: -3s;   }
-.info-card:nth-child(5)::before { animation-delay: -4s;   }
-.info-card:nth-child(6)::before { animation-delay: -5s;   }
-
-.info-card:hover::before { opacity: 1; animation-duration: 2.6s; }
-
-/* Content sits above the ring */
-.info-card > * { position: relative; z-index: 1; }
-
-/* Bottom rail stays, just re-toned for dark */
-.info-card::after {
-  background: linear-gradient(90deg, var(--pv-gold), var(--pv-cyan));
-  height: 2px;
-  z-index: 2;
-}
-
-.info-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(240,160,52,.34);
-  box-shadow: 0 22px 48px rgba(0,0,0,.6), 0 0 34px rgba(240,160,52,.12);
-}
-
-/* ── Consistent internal rhythm ─────────────────────────────────── */
-.member-photo,
-.default-avatar {
-  width: 94px; height: 94px;
-  flex: 0 0 auto;
-  margin: 0 auto 15px;
-}
-
-.member-name {
-  font-size: 16.5px;
-  line-height: 1.3;
-  margin-bottom: 5px;
-  min-height: 2.6em;                 /* 1- and 2-line names still align */
-  display: flex; align-items: center; justify-content: center;
-}
-
-.member-role {
-  font-size: 11.5px;
-  margin-bottom: 14px;
-  padding: 4px 12px;
-  border-radius: 100px;
-  background: rgba(240,160,52,.12);
-  border: 1px solid rgba(240,160,52,.28);
-  display: inline-block;
-}
-
-/* Bio takes the slack so every card's socials land on the same line */
-.info-card .about-para {
-  flex: 1 1 auto;
-  font-size: 13.5px;
-  line-height: 1.72;
-  margin-bottom: 18px;
-  text-align: center;
-  text-wrap: pretty;                  /* avoids ugly one-word last lines */
-}
-
-.social-links {
-  margin-top: auto;                   /* pinned to the bottom of every card */
-  padding-top: 4px;
-  flex: 0 0 auto;
-}
-
-.social-link-pravesh {
-  width: 38px; height: 38px;
-  border-radius: 11px;
-  display: grid; place-items: center;
-  font-size: 15px;
-  transition: all .28s var(--pv-ease);
-}
-.social-link-pravesh:hover { transform: translateY(-3px) scale(1.06); }
-
-/* ── Responsive ─────────────────────────────────────────────────── */
-@media (max-width: 991px) {
-  .card-section { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-}
-@media (max-width: 600px) {
-  .card-section { grid-template-columns: 1fr; gap: 18px; }
-  .member-name { min-height: 0; }
-  .info-card { padding: 26px 20px 20px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .info-card::before { animation: none; opacity: .5; }
 }
