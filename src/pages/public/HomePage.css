@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════
-   PRAVESH — PREMIUM LANDING
-   Dark aurora hero · bento grid · glow accents
-═══════════════════════════════════════════════ */
+
 
 @import './public-theme.css';
 
@@ -150,7 +147,6 @@
 
 .brand-type {
   display: inline-flex; align-items: baseline; flex-wrap: wrap;
-  justify-content: center;
   gap: 8px;
   max-width: 100%;
   min-height: 34px;
@@ -545,7 +541,12 @@
     .hero-sub { margin-left:auto; margin-right:auto; }
   .hero-cta { justify-content:center; }
   .hero-ticks { align-items:center; }
-  .hero-art { min-height:400px; }
+  .hero-art {
+    flex-direction: column; gap: 16px;
+    min-height: auto; max-width: 380px; margin: 0 auto;
+  }
+  .chip-scan, .chip-bell { position: static; left:auto; right:auto; top:auto; bottom:auto; }
+  .art-ring-1, .art-ring-2 { display: none; }
   .bento { grid-template-columns:repeat(2,1fr); }
   .bento-lg, .bento-wide { grid-column: span 2; grid-row: auto; }
   .steps { grid-template-columns:repeat(2,1fr); gap:32px; }
@@ -562,9 +563,13 @@
   .hero-sub { font-size:15.5px; }
   .hero-cta { flex-direction:column; width:100%; }
   .btn-glow, .btn-ghost { width:100%; justify-content:center; }
-  .hero-art { min-height:340px; transform:scale(.88); }
-  .chip-scan { left:-22px; bottom:22px; }
-  .chip-bell { right:-16px; top:20px; }
+  .hero-art {
+    flex-direction: column; gap: 14px;
+    min-height: auto; max-width: 300px; margin: 0 auto;
+    transform: none;
+  }
+  .chip-scan, .chip-bell { position: static; left:auto; right:auto; top:auto; bottom:auto; }
+  .art-ring-1 { display: none; }
   .art-ring-2 { display:none; }
   .stats { gap:34px; padding:26px 0 42px; }
   .stat-n { font-size:1.9rem; }
@@ -585,109 +590,128 @@
 }
 
 /* ═══════════════════════════════════════════════
-   DARK MODE OVERRIDES — landing page
+   LIGHT THEME OVERRIDES (appended last, wins cascade)
+   Hero, product mockup, stats and CTA converted from
+   dark to a soft, faint-white light look. The PRAVESH
+   brand + typewriter animation is preserved, just
+   recoloured to read on a light background.
 ═══════════════════════════════════════════════ */
-
 .home-page {
-  --surface:    #101827;
-  --surface-2:  #070b14;
-  --txt:        #e9eef7;
-  --txt-mute:   #6f819c;
-  --line:       rgba(255,255,255,.09);
-  --gold:       #f0a034;
-  --gold-lite:  #ffc46b;
-  --cyan:       #22d3ee;
-  --ink:        #070b14;
-  background: transparent;
+  --surface:   #f1efe8;
+  --surface-2: #eae7de;
+  --line:      rgba(61,52,38,.10);
+  --txt-mute:  #857f74;
 }
 
-/* Marquee strip blends into the dark canvas */
-.marquee {
-  background: rgba(10,16,32,.7);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--line);
+/* ── Hero shell → soft light ── */
+.hero {
+  background: linear-gradient(180deg, #ede9e1 0%, #f1efe8 55%, var(--surface-2) 100%);
   border-bottom: 1px solid var(--line);
 }
-.marquee-item { color: var(--txt-mute); }
-
-/* Section headings */
-.sec-title { color: var(--txt); }
-
-/* Bento cells → glass */
-.bento-cell {
-  background: linear-gradient(160deg, rgba(22,32,47,.92), rgba(16,24,39,.92));
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 20px rgba(0,0,0,.45);
+.hero-aurora .aur-1 { background: radial-gradient(circle, rgba(232,135,26,.12), transparent 68%); }
+.hero-aurora .aur-2 { background: radial-gradient(circle, rgba(44,93,140,.12),  transparent 68%); }
+.hero-aurora .aur-3 { background: radial-gradient(circle, rgba(14,155,184,.09),  transparent 68%); }
+.hero-noise { opacity: .05; }
+.hero-dots {
+  background-image: radial-gradient(rgba(61,52,38,.07) 1px, transparent 1px);
 }
-.bento-cell:hover {
-  border-color: rgba(240,160,52,.4);
-  box-shadow: 0 24px 54px rgba(0,0,0,.6), 0 0 0 1px rgba(240,160,52,.2);
-}
-.bento-cell h5 { color: var(--txt); }
-.bento-cell p  { color: var(--txt-mute); }
-.cell-ico {
-  background: linear-gradient(135deg, rgba(240,160,52,.18), rgba(34,211,238,.16));
-  border: 1px solid rgba(255,255,255,.1);
-  color: var(--gold-lite);
+.hero-spotlight {
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 40%),
+              rgba(232,135,26,.10), transparent 62%);
 }
 
-.mini-qr {
-  background: rgba(7,11,20,.6);
-  border: 1px solid var(--line);
+/* ── Eyebrow pill ── */
+.pill {
+  background: var(--surface);
+  border: 1px solid var(--line-2, rgba(20,40,70,.14));
+  color: var(--navy);
 }
-.mini-qr span   { background: rgba(255,255,255,.1); }
-.mini-qr span.on { background: var(--cyan); box-shadow: 0 0 8px rgba(34,211,238,.5); }
 
-/* Step badges */
-.step-badge {
-  background: linear-gradient(160deg, rgba(22,32,47,.95), rgba(16,24,39,.95));
-  border: 1px solid var(--line);
-  color: var(--cyan-2, #67e8f9);
-  box-shadow: 0 6px 22px rgba(0,0,0,.45);
-}
-.step:hover .step-badge {
-  border-color: rgba(240,160,52,.5);
-  box-shadow: 0 14px 34px rgba(240,160,52,.25);
-}
-.step h6 { color: var(--txt); }
-.step p  { color: var(--txt-mute); }
-
-/* Role cards */
-.role {
-  background: linear-gradient(160deg, rgba(22,32,47,.92), rgba(16,24,39,.92));
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 20px rgba(0,0,0,.45);
-}
-.role:hover {
-  border-color: rgba(34,211,238,.35);
-  box-shadow: 0 20px 44px rgba(0,0,0,.6), 0 0 0 1px rgba(34,211,238,.18);
-}
-.role-ico {
-  background: linear-gradient(135deg, rgba(34,211,238,.16), rgba(240,160,52,.14));
-  border: 1px solid rgba(255,255,255,.1);
-  color: var(--cyan);
-}
-.role h6 { color: var(--txt); }
-.role p  { color: var(--txt-mute); }
-
-/* Hero mockup glass */
-.glass-card {
-  background: rgba(255,255,255,.055);
-  border: 1px solid rgba(255,255,255,.12);
-  box-shadow: 0 24px 60px rgba(0,0,0,.6);
-}
-.qr { background: rgba(255,255,255,.05); }
-.qr span { background: rgba(255,255,255,.12); }
-.qr span.on { background: var(--cyan); box-shadow: 0 0 8px rgba(34,211,238,.6); }
-
-/* Stats inside hero */
-.stat-n {
-  background: linear-gradient(135deg, var(--gold-lite), var(--gold));
+/* ── Brand name + typewriter (recoloured for light) ── */
+.brand-name {
+  background: linear-gradient(100deg, var(--navy), var(--gold) 55%, var(--navy-lite));
+  background-size: 300% 100%;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(232,135,26,.20));
+}
+.bt-letters { color: var(--gold); text-shadow: none; }
+.bt-sep     { color: rgba(20,40,70,.30); }
+.bt-word    { color: var(--txt); }
+.bt-cursor  { color: var(--gold); }
+
+/* ── Hero heading / copy ── */
+.hero-h1  { color: var(--ink); }
+.glow-text {
+  background: linear-gradient(100deg, var(--navy), var(--gold), var(--navy-lite));
+  background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: none;
+}
+.hero-sub { color: var(--txt-mute); }
+.hero-ticks li { color: var(--txt-mute); }
+.hero-ticks i  { color: var(--navy); background: rgba(26,60,94,.10); }
+
+/* ── Buttons ── */
+.btn-ghost {
+  background: var(--surface);
+  border: 1px solid var(--line-2, rgba(20,40,70,.14));
+  color: var(--navy) !important;
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+  border-color: rgba(20,40,70,.28);
+  color: var(--navy) !important;
 }
 
-/* Closing CTA */
-.cta { background: linear-gradient(160deg, #0d1526, #070b14); border: 1px solid var(--line); }
+/* ── Hero product mockup → light card ── */
+.art-ring { border-color: rgba(26,60,94,.10); }
+.glass-card {
+  background: var(--surface);
+  backdrop-filter: none;
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 34px rgba(16,40,70,.10);
+}
+.tag { color: var(--navy); background: rgba(26,60,94,.09); }
+.live { color: #16a34a; }
+.live-dot-sm { background: #16a34a; box-shadow: 0 0 8px rgba(22,163,74,.5); }
+.qr { background: var(--surface-2); }
+.qr span { background: rgba(26,60,94,.12); }
+.qr span.on { background: var(--navy); box-shadow: none; }
+.pass-meta { border-top: 1px dashed var(--line); }
+.pass-meta strong { color: var(--txt); }
+.pass-meta small  { color: var(--txt-mute); }
+.card-sheen { display: none; }
+.chip-ico.gold { background: rgba(232,135,26,.16); color: var(--gold); }
+.chip-t { color: var(--txt); }
+.chip-s { color: var(--txt-mute); }
+
+/* ── Stats ── */
+.stats { border-top: 1px solid var(--line); }
+.stat-n {
+  background: linear-gradient(135deg, var(--gold), var(--navy));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: none;
+}
+.stat-l { color: var(--txt-mute); }
+
+/* ── Marquee ── */
+.marquee { background: var(--surface); border-color: var(--line); }
+.marquee-item { color: var(--txt-mute); }
+
+/* ── Closing CTA → soft light panel ── */
+.cta {
+  background: linear-gradient(160deg, #ece7dd, var(--surface));
+  border: 1px solid var(--line);
+}
+.cta-aurora {
+  background:
+    radial-gradient(circle at 25% 40%, rgba(232,135,26,.12), transparent 55%),
+    radial-gradient(circle at 78% 60%, rgba(44,93,140,.12), transparent 55%);
+  filter: blur(70px);
+}
+.cta-mark { filter: drop-shadow(0 4px 16px rgba(232,135,26,.30)); }
+.cta h3 { color: var(--ink); }
+.cta p  { color: var(--txt-mute); }

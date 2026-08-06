@@ -80,7 +80,7 @@ export default function HomePage() {
     'E Entry',
     'S Security',
     'H Hub',
-    'PRAVESH Premises · Registration · And · Visitor · Entry · Security · Hub',
+    '  Premises · Registration · And · Visitor · Entry · Security · Hub',
   ]
   const typed = useTypewriter(acronymLines, { typingSpeed: 48, deletingSpeed: 22, pauseTime: 1000 })
   const gapIdx = typed.indexOf(' ')
