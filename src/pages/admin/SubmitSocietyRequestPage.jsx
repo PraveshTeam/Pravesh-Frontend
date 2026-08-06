@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { submitSocietyRequest } from '../../api/endpoints'
 import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
+import BackButton from '../../components/common/BackButton'
 
 const MAX_SIZE = 5 * 1024 * 1024
 
@@ -44,6 +45,7 @@ export default function SubmitSocietyRequestPage() {
     <>
       <Navbar />
       <div className="container py-4" style={{ maxWidth: 520 }}>
+        <BackButton to="/access-pending" label="Back" />
         <div className="page-header">
           <h4 className="mb-0"><i className="bi bi-building-add me-2"></i>Register Your Society</h4>
         </div>

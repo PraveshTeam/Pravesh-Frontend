@@ -6,6 +6,8 @@ import {
 import { useToast } from '../../context/ToastContext'
 import Navbar from '../../components/common/Navbar'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
+import BackButton from '../../components/common/BackButton'
+import FlatConflictModal from '../../components/common/FlatConflictModal'
 
 export default function AdminOnboardingPage() {
   const { showToast } = useToast()
@@ -18,6 +20,10 @@ export default function AdminOnboardingPage() {
   const [approvingId, setApprovingId] = useState(null)
   const [submittingRejectId, setSubmittingRejectId] = useState(null)
   const [viewingDocId, setViewingDocId] = useState(null)
+
+  const [conflict, setConflict] = useState(null)
+  const [conflictRequestId, setConflictRequestId] = useState(null)
+  const [forcing, setForcing] = useState(false)
 
   const load = () => {
     setLoading(true)
@@ -41,17 +47,31 @@ export default function AdminOnboardingPage() {
     }
   }
 
-  const approve = async (id) => {
+  const approve = async (id, force = false) => {
     setApprovingId(id)
     try {
-      await approveOnboardingRequest(id)
-      showToast('Approved.', 'success')
+      await approveOnboardingRequest(id, force)
+      showToast(force ? 'Approved — previous occupant reassigned.' : 'Approved.', 'success')
+      setConflict(null)
+      setConflictRequestId(null)
       load()
     } catch (err) {
-      showToast(err.response?.data?.message || 'Approval failed.', 'error')
+      const data = err.response?.data
+      if (err.response?.status === 409 && data?.conflict) {
+        setConflict(data)
+        setConflictRequestId(id)
+      } else {
+        showToast(data?.message || 'Approval failed.', 'error')
+      }
     } finally {
       setApprovingId(null)
+      setForcing(false)
     }
+  }
+
+  const confirmForceApprove = async () => {
+    setForcing(true)
+    await approve(conflictRequestId, true)
   }
 
   const reject = async (id) => {
@@ -72,6 +92,7 @@ export default function AdminOnboardingPage() {
     <>
       <Navbar />
       <div className="container py-4">
+        <BackButton to="/admin" label="Back to Admin Dashboard" />
         <div className="page-header d-flex justify-content-between align-items-center">
           <h4 className="mb-0"><i className="bi bi-person-check me-2"></i>Onboarding Requests</h4>
           <select className="form-select w-auto" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
@@ -109,7 +130,7 @@ export default function AdminOnboardingPage() {
                       <>
                         <button
                           className="btn btn-sm btn-success me-2"
-                          onClick={() => approve(r.id)}
+                          onClick={() => approve(r.id, false)}
                           disabled={approvingId === r.id || submittingRejectId === r.id}
                         >
                           {approvingId === r.id
@@ -152,6 +173,9 @@ export default function AdminOnboardingPage() {
                     {r.status === 'REJECTED' && r.adminNotes && (
                       <span className="text-muted small">Reason: {r.adminNotes}</span>
                     )}
+                    {r.status === 'APPROVED' && r.adminNotes && (
+                      <span className="text-warning small"><i className="bi bi-info-circle me-1"></i>{r.adminNotes}</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -163,6 +187,14 @@ export default function AdminOnboardingPage() {
           )}
         </div>
       </div>
+
+      <FlatConflictModal
+        show={!!conflict}
+        conflict={conflict}
+        confirming={forcing}
+        onCancel={() => { setConflict(null); setConflictRequestId(null) }}
+        onConfirm={confirmForceApprove}
+      />
     </>
   )
 }
